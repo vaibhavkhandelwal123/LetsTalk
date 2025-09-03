@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { createRoom, joinChat } from "../Services/Service";
 import useChatContext from "../Context/Context.jsx";
+import { Button } from "@mantine/core";
 
 const JoinCreateChat = () => {
+  
   const navigate = useNavigate();
   const [details, setDetails] = useState({
     roomId: "",
     userName: "",
   });
 
+  const params = useLocation();
+  useEffect(() => {
+  const searchParams = new URLSearchParams(location.search);
+  const queryRoomId = searchParams.get("roomId");
+  if (queryRoomId) {
+    setDetails((prevDetails) => ({
+      ...prevDetails,
+      roomId: queryRoomId,
+    }));
+  }
+}, [location.search]);
   const {
     roomId,
     currentUser,
@@ -34,7 +47,7 @@ const JoinCreateChat = () => {
         setRoomId(details.roomId);
         setCurrentUser(details.userName);
         setConnected(true);
-        navigate("/chat");
+        navigate(`/chat/${details.roomId}`);
       }).catch((err) => {
         const errorMessage =
           err.response?.data?.message ||
@@ -53,7 +66,7 @@ const JoinCreateChat = () => {
           setRoomId(details.roomId);
           setCurrentUser(details.userName);
           setConnected(true);
-          navigate("/chat");
+          navigate(`/chat/${details.roomId}`);
         })
         .catch((err) => {
           const errorMessage =
@@ -70,9 +83,19 @@ const JoinCreateChat = () => {
       toast.error("Please fill all the fields");
       return false;
     }
+    else if(details.roomId.length < 10) {
+      toast.error("Room ID must be at least 10 characters long");
+      return false;
+    }
     return true;
   }
-  return (
+
+  const handleGenerateID = () => {
+    const randomId = Math.random().toString(36).substring(2, 12);
+    setDetails({ ...details, roomId: randomId });
+  };
+
+return (
     <div className="min-h-screen flex items-center bg-[url('/image.png')] bg-cover bg-center justify-center">
       <div className="border p-8 flex flex-col gap-2 w-full max-w-md rounded dark:border-gray-700 bg-gradient-to-t from-blue-500  to-purple-600 ">
         <div>
@@ -97,10 +120,11 @@ const JoinCreateChat = () => {
         </div>
 
         {/* room id div */}
-        <div>
+        <div className="">
           <label htmlFor="roomId" className="block font-medium mb-2">
             Room ID
           </label>
+          <div className="w-full flex gap-2">
           <input
             onChange={handleFormInputChange}
             id="roomId"
@@ -110,6 +134,8 @@ const JoinCreateChat = () => {
             placeholder="Enter Room ID"
             className="focus:outline-none text-white placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 rounded-lg w-full"
           />
+          <Button onClick={handleGenerateID} className="!w-50 !bg-amber-400">Generate ID</Button>
+          </div>
         </div>
 
         {/* button */}

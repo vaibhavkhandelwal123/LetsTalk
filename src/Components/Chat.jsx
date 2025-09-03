@@ -170,6 +170,11 @@ const Chat = () => {
     }
   }, [messages]);
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/?roomId=${roomId}`);
+    toast.success("Room ID copied to clipboard");
+  };
+
   return (
     <div className="bg-gradient-to-t from-blue-800 to-purple-800">
       {/* header */}
@@ -184,10 +189,16 @@ const Chat = () => {
             User : <span>{currentUser}</span>
           </h1>
         </div>
-        <div>
+        <div className=" flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="dark:bg-green-600 dark:hover:bg-green-700 text-md font-semibold text-white px-3 py-2 rounded"
+          >
+            Share Room
+          </button>
           <button
             onClick={handleLeave}
-            className="dark:bg-red-500 dark:hover:bg-red-700 text-md font-semibold text-white px-3 py-2 rounded"
+            className="dark:bg-red-600 dark:hover:bg-red-700 text-md font-semibold text-white px-3 py-2 rounded"
           >
             Leave Room
           </button>

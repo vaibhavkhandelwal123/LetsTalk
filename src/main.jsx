@@ -16,7 +16,8 @@ createRoot(document.getElementById("root")).render(
       <ChatProvider>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/chat" element={<Chat />} />
+          <Route path="/?roomId=:roomId" element={<App />} />
+          <Route path="/chat/:id" element={<Chat />} />
         </Routes>
       </ChatProvider>
       </MantineProvider>
