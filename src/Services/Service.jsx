@@ -12,4 +12,5 @@ const fetchMessages = async (roomId,size=50,page=0) => {
     return (await httpClient.get(`/rooms/${roomId}/messages?size=${size}&page=${page}`)).data;
 }
 
+
 export {createRoom,joinChat,fetchMessages};

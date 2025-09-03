@@ -74,12 +74,12 @@ const JoinCreateChat = () => {
   }
   return (
     <div className="min-h-screen flex items-center bg-[url('/image.png')] bg-cover bg-center justify-center">
-      <div className="border p-8 flex flex-col gap-2 w-full max-w-md rounded dark:border-gray-700 dark:bg-gray-900">
+      <div className="border p-8 flex flex-col gap-2 w-full max-w-md rounded dark:border-gray-700 bg-gradient-to-t from-blue-500  to-purple-600 ">
         <div>
           <img src="/chat.png" className="w-24 mx-auto" />
         </div>
 
-        <h1 className="text-3xl text-center text-semibold">Chat App</h1>
+        <h1 className="text-3xl text-center text-semibold">Let's Chat</h1>
         {/* user name div */}
         <div>
           <label htmlFor="userName" className="block font-medium mb-2">
@@ -92,7 +92,7 @@ const JoinCreateChat = () => {
             name="userName"
             placeholder="Enter your name"
             type="text"
-            className="focus:outline-none focus:ring-blue-500 dark:bg-gray-600 px-4 py-2 rounded-lg w-full"
+            className="focus:outline-none placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 text-white rounded-lg w-full"
           />
         </div>
 
@@ -108,7 +108,7 @@ const JoinCreateChat = () => {
             name="roomId"
             value={details.roomId}
             placeholder="Enter Room ID"
-            className="focus:outline-none focus:ring-blue-500 dark:bg-gray-600 px-4 py-2 rounded-lg w-full"
+            className="focus:outline-none text-white placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 rounded-lg w-full"
           />
         </div>
 
@@ -116,13 +116,13 @@ const JoinCreateChat = () => {
         <div className="flex justify-between gap-4 mt-2">
           <button
             onClick={handleCreate}
-            className="dark:bg-blue-500 hover:bg-blue-800 w-1/2 text-gray-200 font-semibold text-md px-3 py-2 rounded-lg"
+            className="dark:bg-yellow-500 hover:bg-yellow-800 w-1/2 text-black font-semibold text-md px-3 py-2 rounded-lg"
           >
             Create Room
           </button>
           <button
             onClick={handleJoin}
-            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 text-gray-200 font-semibold  text-md px-3 py-2 rounded-lg"
+            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 text-black font-semibold  text-md px-3 py-2 rounded-lg"
           >
             Join Room
           </button>

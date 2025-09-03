@@ -1,57 +1,79 @@
 import { MdAttachFile, MdSend } from "react-icons/md";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import useChatContext from "../Context/Context.jsx";
-import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import { baseURL } from "../Config/AxiosHelper";
+import { baseURL, httpClient } from "../Config/AxiosHelper";
 import { fetchMessages } from "../Services/Service.jsx";
-import {timeAgo} from "../Config/Helper"
+import { timeAgo } from "../Config/Helper";
 import { TiTick } from "react-icons/ti";
+import axios from "axios";
+import { FaDownload } from "react-icons/fa";
+import { getFileUrl } from "../Config/Utils.jsx";
+
 const Chat = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
+  const [file, setFile] = useState(null);
   const [input, setInput] = useState("");
-  const inputRef = useRef(null);
   const chatBoxRef = useRef(null);
   const [stompClient, setStompClient] = useState(null);
-  const { roomId, currentUser, connected, setConnected,setRoomId,setCurrentUser } = useChatContext();
+  const [fileUrls, setFileUrls] = useState({});
+
+  const {
+    roomId,
+    currentUser,
+    connected,
+    setConnected,
+    setRoomId,
+    setCurrentUser,
+  } = useChatContext();
   const [currUser] = useState(currentUser);
 
+  // if page reload logout the user
   useEffect(() => {
     if (!connected || !roomId || !currentUser) {
       navigate("/");
     }
   }, [connected, roomId, currentUser]);
 
+  // connect to websocket
   useEffect(() => {
     const connectWebSocket = () => {
       const sock = new SockJS(`${baseURL}/chat`);
       const client = Stomp.over(sock);
 
-      client.connect({}, () => {
-        setStompClient(client);
+      client.connect(
+        {},
+        () => {
+          setStompClient(client);
+          toast.success("Connected");
 
-        toast.success("connected");
-
-        client.subscribe(`/topic/room/${roomId}`, (message) => {
-          console.log(message);
-
-          const newMessage = JSON.parse(message.body);
-
-          setMessages((prev) => [...prev, newMessage]);
-        });
-      });
+          client.subscribe(`/topic/room/${roomId}`, (message) => {
+            const newMessage = JSON.parse(message.body);
+            setMessages((prev) => [...prev, newMessage]);
+          });
+        },
+        (error) => {
+          console.error("WebSocket error", error);
+          toast.error("WebSocket connection failed");
+        }
+      );
     };
 
     if (connected) {
       connectWebSocket();
     }
-  }, [roomId]);
+  }, [roomId, connected]);
+
+
+  // leave button handle
   const handleLeave = () => {
-    stompClient.disconnect();
+    if (stompClient) {
+      stompClient.disconnect();
+    }
     setConnected(false);
     setRoomId(null);
     setCurrentUser(null);
@@ -59,38 +81,100 @@ const Chat = () => {
     navigate("/");
   };
 
-  useEffect(()=>{
-    fetchMessages(roomId).then((data) => {
-      setMessages(data);
-    }).catch((err) => {
-      console.log(err);
-    });
-  },[roomId])
-  const sendMessage = () => {
-    if (stompClient && connected && input.trim() !== "") {
-      stompClient.send(`/app/sendMessage/${roomId}`, {}, JSON.stringify({
+  // fetch messages 
+  useEffect(() => {
+    fetchMessages(roomId)
+      .then((data) => setMessages(data))
+      .catch((err) => console.error(err));
+  }, [roomId]);
+
+  // load the files extracting by their urls
+  useEffect(() => {
+    const loadFiles = async () => {
+      for (const msg of messages) {
+        if (msg.fileType === "FILE" && !fileUrls[msg.content]) {
+          const url = await getFileUrl(msg.content);
+          if (url) {
+            setFileUrls((prev) => ({ ...prev, [msg.content]: url }));
+          }
+        }
+      }
+    };
+    loadFiles();
+  }, [messages]);
+
+  // send messages and files
+  const sendMessage = async () => {
+    if (!input && !file) return;
+
+    try {
+      let messageToSend = {
         sender: currentUser,
         content: input,
-        roomId: roomId
-      }));
-      setInput("");
-    }
-  }
+        roomId,
+        type: "TEXT",
+      };
 
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64Data = reader.result.split(",")[1];
+
+          const response = await axios.post(`${baseURL}/api/files/upload`, {
+            fileName: file.name,
+            contentType: file.type,
+            data: base64Data,
+          });
+
+          messageToSend = {
+            sender: currentUser,
+            content: response.data.id,
+            roomId,
+            fileType: "FILE",
+            fileName: file.name,
+          };
+
+          stompClient.send(
+            `/app/sendMessage/${roomId}`,
+            {},
+            JSON.stringify(messageToSend)
+          );
+
+          setFile(null);
+          setInput("");
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      stompClient.send(
+        `/app/sendMessage/${roomId}`,
+        {},
+        JSON.stringify(messageToSend)
+      );
+      setInput("");
+    } catch (error) {
+      console.error("Failed to send", error);
+      toast.error("Failed to send message");
+    }
+  };
+
+
+  // reference the chatbox to autoscroll
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scroll({
         top: chatBoxRef.current.scrollHeight,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [messages]);
 
   return (
-    <div className="">
+    <div className="bg-gradient-to-t from-blue-800 to-purple-800">
       {/* header */}
-      <header className="flex fixed w-full h-20 dark:bg-gray-800 items-center border py-5 dark:border-gray-700 shadow justify-around">
-        <div className="">
+      <header className="flex fixed w-full h-20 z-10 text-white dark:bg-gray-800 items-center border py-5 dark:border-gray-700 shadow justify-around">
+        <div>
           <h1 className="text-xl font-semibold">
             Room : <span>{roomId}</span>
           </h1>
@@ -111,7 +195,10 @@ const Chat = () => {
       </header>
 
       {/* message section */}
-      <main ref={chatBoxRef} className="py-20 bg-[url('/bg.jpg')] bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen">
+      <main
+        ref={chatBoxRef}
+        className="py-20 bg-[url('/bg.jpg')] bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen"
+      >
         <div className="message_container">
           {messages.map((message, index) => (
             <div
@@ -123,17 +210,73 @@ const Chat = () => {
               <div
                 className={`my-2 ${
                   message.sender === currUser ? "bg-green-800" : "bg-blue-800"
-                } p-2 max-w-xs rounded`}
+                } px-2 py-1 max-w-xl rounded`}
               >
                 <div className="flex flex-row gap-2">
                   <img
-                    src={`https://avatar.iran.liara.run/username?username=${message.sender}`} 
-                    className="h-10 w-10 rounded-full"
+                    src={`https://avatar.iran.liara.run/username?username=${message.sender}`}
+                    className="h-10 w-10 mt-5 rounded-full"
                   />
                   <div className="flex flex-col gap-1">
-                    <p className="text-sm font-bold">{message.sender}</p>
-                    <p>{message.content}</p>
-                    <div className="text-xs flex gap-2 items-center justify-end text-gray-300"><TiTick/> {timeAgo(message.timeStamp)}</div>
+                    <p className="text-lg font-bold text-white">
+                      {message.sender}
+                    </p>
+
+{/* message type according to the file type */}
+                    {message.fileType === "FILE" ? (
+                      message.fileName?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                        fileUrls[message.content] ? (
+                          <div>
+                            <img
+                              src={fileUrls[message.content]}
+                              alt={message.fileName}
+                              className="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer"
+                              onClick={() =>
+                                window.open(fileUrls[message.content], "_blank")
+                              }
+                            />
+                            <a
+                              href={fileUrls[message.content]}
+                              download={message.fileName}
+                              className="px-2 mt-5 py-1 text-xs bg-green-600 hover:bg-green-700 rounded flex w-8 h-8 text-white"
+                            >
+                              <FaDownload size={20} />
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-gray-400">Loading image...</p>
+                        )
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-200">
+                            {message.fileName || "file"}
+                          </span>
+                          {fileUrls[message.content] ? (
+                            <a
+                              href={fileUrls[message.content]}
+                              download={message.fileName}
+                              className="px-2 py-1 text-xs flex w-8 h-8 bg-green-600 hover:bg-green-700 rounded text-white"
+                            >
+                              <FaDownload size={20} />
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">Loading...</span>
+                          )}
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-white flex-wrap flex">
+                        {message.content}
+                      </p>
+                    )}
+
+                    <div className="text-xs flex gap-2 items-center justify-end text-gray-300">
+                      {timeAgo(message.timeStamp)}
+                      <span className="flex flex-row gap-0">
+                        <TiTick />
+                        <TiTick />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -144,27 +287,50 @@ const Chat = () => {
 
       {/* input */}
       <div className="fixed bottom-2 p-2 w-full h-16">
-        <div className="flex rounded-2xl gap-5 justify-between pr-1 items-center w-2/3 mx-auto dark:bg-gray-800">
+        <div className="flex rounded-2xl gap-5 justify-between pr-1 items-center w-2/3 mx-auto dark:bg-black">
+          {file ? (
+            <div className="text-white border rounded-full p-2 flex items-center justify-center gap-2">
+              <p>{file.name}</p>
+              <span
+                onClick={() => setFile(null)}
+                className="cursor-pointer text-red-700"
+              >
+                X
+              </span>
+            </div>
+          ) : null}
+
           <input
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage();
-            }
-          }}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             type="text"
-            className="px-4 w-full py-3 rounded-2xl outline-none dark:border-gray-800 dark:bg-gray-700"
+            className="px-4 w-full py-3 text-white rounded-2xl outline-none placeholder:text-white dark:bg-gray-800"
             placeholder="Type your message..."
           />
           <div className="flex gap-2">
-            <button
+            <input
               type="file"
-              className="dark:bg-purple-600  dark:hover:bg-purple-700 rounded-full font-semibold flex items-center justify-center h-10 w-10"
+              id="fileInput"
+              style={{ display: "none" }}
+              onChange={(e) => setFile(e.target.files[0])}
+              accept="image/png,image/jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            />
+            <button
+              className="dark:bg-purple-500 dark:hover:bg-purple-700 rounded-full font-semibold flex items-center justify-center h-10 w-10"
+              onClick={() => document.getElementById("fileInput").click()}
+              type="button"
             >
               <MdAttachFile size={20} />
             </button>
-            <button onClick={sendMessage} className="dark:bg-green-500 dark:hover:bg-green-700 rounded-full font-semibold flex items-center justify-center h-10 w-10">
+            <button
+              onClick={sendMessage}
+              className="dark:bg-green-500 dark:hover:bg-green-700 rounded-full font-semibold flex items-center justify-center h-10 w-10"
+            >
               <MdSend size={20} />
             </button>
           </div>
