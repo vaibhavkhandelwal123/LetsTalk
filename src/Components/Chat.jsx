@@ -213,7 +213,7 @@ const Chat = () => {
       {/* message section */}
       <main
         ref={chatBoxRef}
-        className="py-20 [@media(max-width:400px)]:py-32 bg-[url('/bg.jpg')] [@media(max-width:400px)]:w-full bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen"
+        className="py-20 [@media(max-width:400px)]:pt-32 bg-[url('/bg.jpg')] [@media(max-width:400px)]:w-full bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen"
       >
         <div className="message_container">
           {messages.map((message, index) => (
