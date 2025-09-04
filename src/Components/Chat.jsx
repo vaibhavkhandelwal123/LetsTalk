@@ -12,11 +12,13 @@ import { TiTick } from "react-icons/ti";
 import axios from "axios";
 import { FaDownload } from "react-icons/fa";
 import { getFileUrl } from "../Config/Utils.jsx";
-import { useMediaQuery } from '@mantine/hooks';
+import { useMediaQuery } from "@mantine/hooks";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    
+  ]);
   const [file, setFile] = useState(null);
   const [input, setInput] = useState("");
   const chatBoxRef = useRef(null);
@@ -69,7 +71,6 @@ const Chat = () => {
     }
   }, [roomId, connected]);
 
-
   // leave button handle
   const handleLeave = () => {
     if (stompClient) {
@@ -82,7 +83,7 @@ const Chat = () => {
     navigate("/");
   };
 
-  // fetch messages 
+  // fetch messages
   useEffect(() => {
     fetchMessages(roomId)
       .then((data) => setMessages(data))
@@ -160,7 +161,6 @@ const Chat = () => {
     }
   };
 
-
   // reference the chatbox to autoscroll
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -172,7 +172,9 @@ const Chat = () => {
   }, [messages]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/?roomId=${roomId}`);
+    navigator.clipboard.writeText(
+      `${window.location.origin}/?roomId=${roomId}`
+    );
     toast.success("Room ID copied to clipboard");
   };
 
@@ -182,15 +184,15 @@ const Chat = () => {
       <header className="flex fixed [@media(max-width:400px)]:flex-col w-full [@media(max-width:400px)]:h-30 h-20 z-10 text-white dark:bg-gray-800 items-center border py-5 dark:border-gray-700 shadow justify-around">
         <div className="[@media(max-width:400px)]:flex [@media(max-width:400px)]:gap-5 flex gap-10">
           <div>
-          <h1 className="text-xl font-semibold [@media(max-width:400px)]:text-lg">
-            Room : <span>{roomId}</span>
-          </h1>
-        </div>
-        <div>
-          <h1 className="text-xl font-semibold [@media(max-width:400px)]:text-lg">
-            User : <span>{currentUser}</span>
-          </h1>
-        </div>
+            <h1 className="text-xl font-semibold [@media(max-width:400px)]:text-lg">
+              Room : <span>{roomId}</span>
+            </h1>
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold [@media(max-width:400px)]:text-lg">
+              User : <span>{currentUser}</span>
+            </h1>
+          </div>
         </div>
         <div className=" flex [@media(max-width:400px)]:gap-5 gap-2">
           <button
@@ -211,7 +213,7 @@ const Chat = () => {
       {/* message section */}
       <main
         ref={chatBoxRef}
-        className="py-20 bg-[url('/bg.jpg')] [@media(max-width:400px)]:w-full bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen"
+        className="py-20 [@media(max-width:400px)]:py-32 bg-[url('/bg.jpg')] [@media(max-width:400px)]:w-full bg-cover bg-no-repeat px-10 overflow-auto w-2/3 dark:bg-slate-600 mx-auto h-screen"
       >
         <div className="message_container">
           {messages.map((message, index) => (
@@ -229,14 +231,14 @@ const Chat = () => {
                 <div className="flex flex-row gap-2">
                   <img
                     src={`https://avatar.iran.liara.run/username?username=${message.sender}`}
-                    className="h-10 w-10 mt-5 rounded-full"
+                    className="h-10 [@media(max-width:400px)]:w-8 [@media(max-width:400px)]:h-8  w-10 mt-5 rounded-full"
                   />
                   <div className="flex flex-col gap-1">
-                    <p className="text-lg font-bold text-white">
+                    <p className="text-lg  font-bold [@media(max-width:400px)]:font-semibold text-white">
                       {message.sender}
                     </p>
 
-{/* message type according to the file type */}
+                    {/* message type according to the file type */}
                     {message.fileType === "FILE" ? (
                       message.fileName?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                         fileUrls[message.content] ? (
@@ -244,7 +246,7 @@ const Chat = () => {
                             <img
                               src={fileUrls[message.content]}
                               alt={message.fileName}
-                              className="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer"
+                              className="max-w-[200px] [@media(max-width:400px)]:max-w-[100px] [@media(max-width:400px)]:max-h-[100px] max-h-[200px] rounded-lg cursor-pointer"
                               onClick={() =>
                                 window.open(fileUrls[message.content], "_blank")
                               }
@@ -271,7 +273,7 @@ const Chat = () => {
                               download={message.fileName}
                               className="px-2 py-1 text-xs flex w-8 h-8 bg-green-600 hover:bg-green-700 rounded text-white"
                             >
-                              <FaDownload size={20} />
+                              <FaDownload size={matches ? 12 : 20} />
                             </a>
                           ) : (
                             <span className="text-gray-400">Loading...</span>
@@ -298,21 +300,20 @@ const Chat = () => {
           ))}
         </div>
       </main>
-      
 
       {/* input */}
       <div className="fixed bottom-12 p-2 [@media(max-width:400px)]:flex [@media(max-width:400px)]:flex-col w-full h-16">
         {file && matches && (
-            <div className="text-white border rounded-full p-2 mb-2 flex items-center justify-center gap-2">
-              <p>{file.name}</p>
-              <span
-                onClick={() => setFile(null)}
-                className="cursor-pointer text-red-700"
-              >
-                X
-              </span>
-            </div>
-          )}
+          <div className="text-white border rounded-full p-2 mb-2 flex items-center justify-center gap-2">
+            <p>{file.name}</p>
+            <span
+              onClick={() => setFile(null)}
+              className="cursor-pointer text-red-700"
+            >
+              X
+            </span>
+          </div>
+        )}
         <div className="flex rounded-2xl gap-5 justify-between pr-1 [@media(max-width:400px)]:w-full items-center w-2/3 mx-auto dark:bg-black">
           {file && !matches && (
             <div className="text-white border rounded-full p-2 flex items-center justify-center gap-2">
@@ -345,7 +346,6 @@ const Chat = () => {
               style={{ display: "none" }}
               onChange={(e) => setFile(e.target.files[0])}
               accept="image/png,image/jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              
             />
             <button
               className="dark:bg-purple-500 dark:hover:bg-purple-700 rounded-full font-semibold flex items-center justify-center [@media(max-width:400px)]:h-8 [@media(max-width:400px)]:w-8 h-10 w-10"
