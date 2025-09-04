@@ -41,8 +41,7 @@ const JoinCreateChat = () => {
   }
   const handleJoin = () => {
     if (validate()) {
-      joinChat(details.roomId).then((data) => {
-        console.log(data);
+      joinChat(details.roomId).then(() => {
         toast.success("Joined room successfully");
         setRoomId(details.roomId);
         setCurrentUser(details.userName);
@@ -61,7 +60,6 @@ const JoinCreateChat = () => {
     if (validate()) {
       createRoom(details.roomId)
         .then((data) => {
-          console.log(data);
           toast.success("Room created successfully");
           setRoomId(details.roomId);
           setCurrentUser(details.userName);
@@ -124,31 +122,29 @@ return (
           <label htmlFor="roomId" className="block font-medium mb-2">
             Room ID
           </label>
-          <div className="w-full flex gap-2">
-          <input
-            onChange={handleFormInputChange}
-            id="roomId"
-            type="text"
-            name="roomId"
-            value={details.roomId}
-            placeholder="Enter Room ID"
-            className="focus:outline-none text-white placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 rounded-lg w-full"
-          />
-          <Button onClick={handleGenerateID} className="!w-50 !bg-amber-400">Generate ID</Button>
-          </div>
+          <div className="w-full flex gap-2 flex-row sm:flex-row [@media(max-width:350px)]:flex-col">
+            <input
+              onChange={handleFormInputChange}
+              id="roomId"
+              type="text"
+              name="roomId"
+              value={details.roomId}
+              placeholder="Enter Room ID"
+              className="focus:outline-none text-white placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 rounded-lg w-full"
+            />
+            <Button onClick={handleGenerateID} className="!w-50 [@media(max-width:350px)]:!w-30 !bg-amber-400">Generate ID</Button>
         </div>
-
-        {/* button */}
-        <div className="flex justify-between gap-4 mt-2">
+        </div>
+        <div className="flex justify-between [@media(max-width:350px)]:flex-col [@media(max-width:350px)]:w-full gap-4 mt-2">
           <button
             onClick={handleCreate}
-            className="dark:bg-yellow-500 hover:bg-yellow-800 w-1/2 text-black font-semibold text-md px-3 py-2 rounded-lg"
+            className="dark:bg-yellow-500 hover:bg-yellow-800 w-1/2 [@media(max-width:350px)]:w-full text-black font-semibold text-md px-3 py-2 rounded-lg"
           >
             Create Room
           </button>
           <button
             onClick={handleJoin}
-            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 text-black font-semibold  text-md px-3 py-2 rounded-lg"
+            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 [@media(max-width:350px)]:w-full text-black font-semibold  text-md px-3 py-2 rounded-lg"
           >
             Join Room
           </button>

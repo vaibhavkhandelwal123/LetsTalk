@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+:root {
+  /* Min-width breakpoints */
+  --breakpoint-xsm-349px: 349px;
+  --breakpoint-xs-480px: 480px;
+  --breakpoint-sm-640px: 640px;
+  --breakpoint-md-768px: 768px;
+  --breakpoint-bs-940px: 940px;
+  --breakpoint-lg-1024px: 1024px;
+  --breakpoint-xl-1280px: 1280px;
+  --breakpoint-2xl-1536px: 1536px;
+
+  /* Max-width breakpoints */
+  --breakpoint-xsm-mx: 349px;
+  --breakpoint-xs-mx: 475px;
+  --breakpoint-sm-mx: 639px;
+  --breakpoint-md-mx: 767px;
+  --breakpoint-bs-mx: 940px;
+  --breakpoint-lg-mx: 1023px;
+  --breakpoint-xl-mx: 1279px;
+  --breakpoint-2xl-mx: 1535px;
+}
