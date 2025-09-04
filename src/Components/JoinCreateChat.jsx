@@ -122,7 +122,7 @@ return (
           <label htmlFor="roomId" className="block font-medium mb-2">
             Room ID
           </label>
-          <div className="w-full flex gap-2 flex-row sm:flex-row [@media(max-width:350px)]:flex-col">
+          <div className="w-full flex gap-2 flex-row sm:flex-row [@media(max-width:400px)]:flex-col">
             <input
               onChange={handleFormInputChange}
               id="roomId"
@@ -132,19 +132,19 @@ return (
               placeholder="Enter Room ID"
               className="focus:outline-none text-white placeholder:text-gray-200 focus:ring-blue-500 dark:bg-gray-700 px-4 py-2 rounded-lg w-full"
             />
-            <Button onClick={handleGenerateID} className="!w-50 [@media(max-width:350px)]:!w-30 !bg-amber-400">Generate ID</Button>
+            <Button onClick={handleGenerateID} className="!w-50 [@media(max-width:400px)]:!w-30 !bg-amber-400">Generate ID</Button>
         </div>
         </div>
-        <div className="flex justify-between [@media(max-width:350px)]:flex-col [@media(max-width:350px)]:w-full gap-4 mt-2">
+        <div className="flex justify-between [@media(max-width:400px)]:flex-col [@media(max-width:400px)]:w-full gap-4 mt-2">
           <button
             onClick={handleCreate}
-            className="dark:bg-yellow-500 hover:bg-yellow-800 w-1/2 [@media(max-width:350px)]:w-full text-black font-semibold text-md px-3 py-2 rounded-lg"
+            className="dark:bg-yellow-500 hover:bg-yellow-800 w-1/2 [@media(max-width:400px)]:w-full text-black font-semibold text-md px-3 py-2 rounded-lg"
           >
             Create Room
           </button>
           <button
             onClick={handleJoin}
-            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 [@media(max-width:350px)]:w-full text-black font-semibold  text-md px-3 py-2 rounded-lg"
+            className="dark:bg-orange-500 hover:bg-orange-800 w-1/2 [@media(max-width:400px)]:w-full text-black font-semibold  text-md px-3 py-2 rounded-lg"
           >
             Join Room
           </button>
