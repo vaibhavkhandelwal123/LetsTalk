@@ -16,9 +16,7 @@ import { useMediaQuery } from "@mantine/hooks";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([
-    
-  ]);
+  const [messages, setMessages] = useState([]);
   const [file, setFile] = useState(null);
   const [input, setInput] = useState("");
   const chatBoxRef = useRef(null);
