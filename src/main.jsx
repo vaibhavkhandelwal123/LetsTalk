@@ -9,9 +9,8 @@ import Chat from "./Components/Chat.jsx";
 import { ChatProvider } from "./Context/Context.jsx";
 import { MantineProvider } from "@mantine/core";
 createRoot(document.getElementById("root")).render(
-
-    <BrowserRouter>
-    <MantineProvider >
+  <BrowserRouter>
+    <MantineProvider>
       <Toaster />
       <ChatProvider>
         <Routes>
@@ -20,6 +19,6 @@ createRoot(document.getElementById("root")).render(
           <Route path="/chat/:id" element={<Chat />} />
         </Routes>
       </ChatProvider>
-      </MantineProvider>
-    </BrowserRouter>
+    </MantineProvider>
+  </BrowserRouter>
 );
